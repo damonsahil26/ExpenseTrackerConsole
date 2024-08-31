@@ -1,9 +1,23 @@
 ﻿
+using ExpenseTracker.Services;
+using ExpenseTracker.Services.Interfaces;
 using ExpenseTracker.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 ConsoleMessage.PrintInfoMessage("Hi, Welcome To Expense Tracker Application : ");
 
-while (true)
+var serviceCollection = new ServiceCollection();
+ConfigureServices(serviceCollection);
+
+var serviceProvider = serviceCollection.BuildServiceProvider();
+var _expenseService = serviceProvider.GetService<IExpenseService>();
+
+void ConfigureServices(ServiceCollection serviceCollection)
+{
+    serviceCollection.AddTransient<IExpenseService, ExpenseService>();
+}
+bool terminateProgram = false;
+while (true && !terminateProgram)
 {
     ShowNewCommandText();
     string input = Console.ReadLine() ?? string.Empty;
@@ -21,7 +35,11 @@ while (true)
         continue;
     }
 
-    if (!commands[0].ToLower().Equals("expense-tracker") && !commands[0].ToLower().Equals("help") && !commands[0].ToLower().Equals("clear"))
+    if (!commands[0].ToLower().Equals("expense-tracker")
+        && !commands[0].ToLower().Equals("help")
+        && !commands[0].ToLower().Equals("clear")
+         && !commands[0].ToLower().Equals("exit")
+        )
     {
         ConsoleMessage.PrintErrorMessage("Wrong command entered!");
         continue;
@@ -36,8 +54,10 @@ while (true)
     {
         if (commands[0].Equals("help"))
             ShowHelp();
-        else
+        else if (commands[0].Equals("clear"))
             ClearConsole();
+        else if (commands[0].Equals("exit"))
+            break;
     }
 
 }
@@ -64,10 +84,18 @@ void HandleEnteredExpense(List<string> commands)
         case "clear":
             ClearConsole();
             break;
+        case "exit":
+            TerminateProgram();
+            break;
         default:
             DisplayWrongCommandMessage();
             break;
     }
+}
+
+void TerminateProgram()
+{
+    terminateProgram = true;
 }
 
 void ClearConsole()
@@ -78,7 +106,13 @@ void ClearConsole()
 
 void ShowHelp()
 {
-    throw new NotImplementedException();
+    var helps = _expenseService?.GetHelpCommandsList();
+    int count = 1;
+    foreach (var item in helps)
+    {
+        ConsoleMessage.PrintHelpMessage(item, count);
+        count++;
+    }
 }
 
 void DeleteExpense(List<string> commands)

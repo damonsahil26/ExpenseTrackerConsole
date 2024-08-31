@@ -28,5 +28,14 @@ namespace ExpenseTracker.Utilities
             Console.WriteLine("\n" + message + "\n");
             Console.ResetColor();
         }
+
+        public static void PrintHelpMessage(string message, int count)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("\n"  + count + ". ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
     }
 }
