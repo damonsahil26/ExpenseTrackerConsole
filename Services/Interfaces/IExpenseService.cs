@@ -9,5 +9,7 @@ namespace ExpenseTracker.Services.Interfaces
     public interface IExpenseService
     {
         List<string> GetHelpCommandsList();
+
+        int AddExpense(string description, double amount, string category);
     }
 }

@@ -216,9 +216,21 @@ void AddExpense(List<string> commands)
     {
         return;
     }
-
+    string description = commands[3];
+    string category = commands[7];
     Double.TryParse(commands[5].Trim(), out double amount);
-    // TODO: Call Add service method
+
+
+    var result = _expenseService?.AddExpense(description, amount, category);
+
+    if (result == 0)
+    {
+        ConsoleMessage.PrintErrorMessage("Expense adding failed for some reason! Please try again...");
+    }
+    else
+    {
+        ConsoleMessage.PrintInfoMessage($"Expense added successfully (ID : {result})");
+    }
 }
 
 bool IsAddCommandCorrect(int parametersRequired, List<string> commands)
