@@ -1,4 +1,5 @@
 ﻿
+using ExpenseTracker.Models;
 using ExpenseTracker.Services;
 using ExpenseTracker.Services.Interfaces;
 using ExpenseTracker.Utilities;
@@ -127,13 +128,17 @@ void DeleteExpense(List<string> commands)
 
     Int32.TryParse(commands[3].Trim(), out int id);
     var result = _expenseService?.DeleteExpense(id);
-    if (result != null && result.Value)
+    if (result != null)
     {
-        ConsoleMessage.PrintErrorMessage("Expense deleting failed for some reason! Please try again...");
-    }
-    else
-    {
-        ConsoleMessage.PrintInfoMessage($"Expense deleted successfully");
+        if (!result.Value)
+        {
+            ConsoleMessage.PrintErrorMessage("Expense deleting failed for some reason! Please try again...");
+        }
+
+        else
+        {
+            ConsoleMessage.PrintInfoMessage($"Expense deleted successfully");
+        }
     }
 }
 
@@ -186,17 +191,17 @@ void DisplaySummary(List<string> commands)
     }
     else
     {
-            Int32.TryParse(commands[3], out int month); 
-            var result = _expenseService?.GetExpenseSummary(month);
-            var monthName = new DateTime(1, month, 1).ToString("MMMM");
-            if (result != null)
-            {
-                ConsoleMessage.PrintInfoMessage($"Total expenses for the {monthName} month : ${result.Value}");
-            }
-            else
-            {
-                ConsoleMessage.PrintInfoMessage($"Total expenses: $0");
-            }
+        Int32.TryParse(commands[3], out int month);
+        var result = _expenseService?.GetExpenseSummary(month);
+        var monthName = new DateTime(1, month, 1).ToString("MMMM");
+        if (result != null)
+        {
+            ConsoleMessage.PrintInfoMessage($"Total expenses for the {monthName} month : ${result.Value}");
+        }
+        else
+        {
+            ConsoleMessage.PrintInfoMessage($"Total expenses: $0");
+        }
     }
 }
 
@@ -210,7 +215,7 @@ bool IsSummaryCommandCorrect(int parametersRequired, List<string> commands)
 
     if (commands.Count == 4)
     {
-        if (!commands[2].Equals("--month"))
+        if (!commands[2].ToLower().Equals("--month"))
         {
             DisplayWrongCommandMessage();
             return false;
@@ -234,7 +239,11 @@ void DisplayAddedExpenses(List<string> commands)
         return;
     }
 
-    // TODO: Call List service method
+    var expenses = _expenseService?.GetAllExpensesList();
+    if (expenses != null)
+    {
+        CreateExpenseTable(expenses);
+    }
 }
 
 bool IsListCommandCorrect(int parametersRequired, List<string> commands)
@@ -279,7 +288,7 @@ bool IsAddCommandCorrect(int parametersRequired, List<string> commands)
         return false;
     }
 
-    if (!commands[2].Equals("--description") || !commands[4].Equals("--amount") || !commands[6].Equals("--category"))
+    if (!commands[2].ToLower().Equals("--description") || !commands[4].ToLower().Equals("--amount") || !commands[6].ToLower().Equals("--category"))
     {
         DisplayWrongCommandMessage();
         return false;
@@ -302,4 +311,30 @@ void DisplayWrongCommandMessage()
 static void ShowNewCommandText()
 {
     ConsoleMessage.PrintCommandMessage("Please enter command to continue or type help for more options : ");
+}
+
+static void CreateExpenseTable(List<Expense> expenses)
+{
+    int colWidth1 = 15, colWidth2 = 35, colWidth3 = 15, colWidth4 = 15, colWidth5 = 15;
+    if (expenses != null && expenses.Count > 0)
+    {
+        Console.WriteLine("\n{0,-" + colWidth1 + "} {1,-" + colWidth2 + "} {2,-" + colWidth3 + "} {3,-" + colWidth4 + "} {4,-" + colWidth5 + "}",
+            "Id", "Description", "Date", "Amount", "Category" + "\n");
+
+        foreach (var expense in expenses)
+        {
+            Console.WriteLine("{0,-" + colWidth1 + "} {1,-" + colWidth2 + "} {2,-" + colWidth3 + "} {3,-" + colWidth4 + "} {4,-" + colWidth4 + "}"
+                , expense.Id, expense.Description, expense.CreatedAt.Date.ToString("dd-MM-yyyy"), expense.Amount, expense.Type);
+            Console.ResetColor();
+        }
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("\n No Expenses exists! \n");
+        Console.ResetColor();
+
+        Console.WriteLine("{0,-" + colWidth1 + "} {1,-" + colWidth2 + "} {2,-" + colWidth3 + "} {3,-" + colWidth4 + "}",
+           "Id", "Description", "Date", "CreatedDate", "Category");
+    }
 }

@@ -130,7 +130,7 @@ namespace ExpenseTracker.Services
 
         public bool DeleteExpense(int id)
         {
-            if (CheckIfFileExists())
+            if (!CheckIfFileExists())
             {
                 return false;
             }
@@ -185,6 +185,17 @@ namespace ExpenseTracker.Services
             }
 
             return 0;
+        }
+
+        public List<Expense> GetAllExpensesList()
+        {
+            if (!CheckIfFileExists())
+            {
+                return new List<Expense>();
+            }
+
+            var expensesFromFile = GetAllExpensesFromFile();
+            return expensesFromFile ?? new List<Expense>();
         }
     }
 }

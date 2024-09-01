@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExpenseTracker.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ namespace ExpenseTracker.Services.Interfaces
     public interface IExpenseService
     {
         List<string> GetHelpCommandsList();
+
+        List<Expense> GetAllExpensesList();
 
         int AddExpense(string description, double amount, string category);
 
