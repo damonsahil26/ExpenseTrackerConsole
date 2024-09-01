@@ -127,5 +127,64 @@ namespace ExpenseTracker.Services
                 "clear"
             };
         }
+
+        public bool DeleteExpense(int id)
+        {
+            if (CheckIfFileExists())
+            {
+                return false;
+            }
+
+            var expenses = GetAllExpensesFromFile();
+            if (expenses?.Count > 0)
+            {
+                var expenseToDelete = expenses.Where(x=>x.Id == id).FirstOrDefault();
+                if (expenseToDelete != null)
+                {
+                    expenses.Remove(expenseToDelete);
+                    var updatedExpenses = JsonSerializer.Serialize<List<Expense>>(expenses);
+                    File.WriteAllText(filePath, updatedExpenses);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public double GetExpenseSummary()
+        {
+            if (!CheckIfFileExists())
+            {
+                return 0;
+            }
+
+            var expensesFromFile = GetAllExpensesFromFile();
+
+            if(expensesFromFile?.Count > 0)
+            {
+                var sum = expensesFromFile.Sum(x=>x.Amount);
+                return sum;
+            }
+
+            return 0;
+        }
+
+        public double GetExpenseSummary(int month)
+        {
+            if (!CheckIfFileExists())
+            {
+                return 0;
+            }
+
+            var expensesFromFile = GetAllExpensesFromFile();
+
+            if (expensesFromFile?.Count > 0)
+            {
+                var sum = expensesFromFile.Where(x=>x.CreatedAt.Month == month).Sum(x => x.Amount);
+                return sum;
+            }
+
+            return 0;
+        }
     }
 }

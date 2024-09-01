@@ -11,5 +11,11 @@ namespace ExpenseTracker.Services.Interfaces
         List<string> GetHelpCommandsList();
 
         int AddExpense(string description, double amount, string category);
+
+        bool DeleteExpense(int id);
+
+        double GetExpenseSummary();
+
+        double GetExpenseSummary(int month);
     }
 }

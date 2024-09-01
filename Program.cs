@@ -108,10 +108,13 @@ void ShowHelp()
 {
     var helps = _expenseService?.GetHelpCommandsList();
     int count = 1;
-    foreach (var item in helps)
+    if (helps != null && helps.Count > 0)
     {
-        ConsoleMessage.PrintHelpMessage(item, count);
-        count++;
+        foreach (var item in helps)
+        {
+            ConsoleMessage.PrintHelpMessage(item, count);
+            count++;
+        }
     }
 }
 
@@ -122,7 +125,16 @@ void DeleteExpense(List<string> commands)
         return;
     }
 
-    // TODO: Call delete service method
+    Int32.TryParse(commands[3].Trim(), out int id);
+    var result = _expenseService?.DeleteExpense(id);
+    if (result != null && result.Value)
+    {
+        ConsoleMessage.PrintErrorMessage("Expense deleting failed for some reason! Please try again...");
+    }
+    else
+    {
+        ConsoleMessage.PrintInfoMessage($"Expense deleted successfully");
+    }
 }
 
 bool IsDeleteCommandCorrect(int parametersRequired, List<string> commands)
@@ -159,7 +171,33 @@ void DisplaySummary(List<string> commands)
         return;
     }
 
-    // TODO: Call summary service method
+    if (commands.Count == 2)
+    {
+        var result = _expenseService?.GetExpenseSummary();
+
+        if (result != null)
+        {
+            ConsoleMessage.PrintInfoMessage($"Total expenses: ${result.Value}");
+        }
+        else
+        {
+            ConsoleMessage.PrintInfoMessage($"Total expenses: $0");
+        }
+    }
+    else
+    {
+            Int32.TryParse(commands[3], out int month); 
+            var result = _expenseService?.GetExpenseSummary(month);
+            var monthName = new DateTime(1, month, 1).ToString("MMMM");
+            if (result != null)
+            {
+                ConsoleMessage.PrintInfoMessage($"Total expenses for the {monthName} month : ${result.Value}");
+            }
+            else
+            {
+                ConsoleMessage.PrintInfoMessage($"Total expenses: $0");
+            }
+    }
 }
 
 bool IsSummaryCommandCorrect(int parametersRequired, List<string> commands)
